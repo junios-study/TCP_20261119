@@ -1,3 +1,5 @@
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 #include <iostream>
 #include <WinSock2.h> //ws2_32.dll
 
@@ -37,7 +39,7 @@ int main()
 
 	char Buffer[1024] = "Hello World";
 
-	int SendBytes = send(ServerSocket, Buffer, strlen(Buffer) + 1 , 0);
+	int SendBytes = send(ServerSocket, Buffer, (int)strlen(Buffer) + 1 , 0);
 	if (SendBytes == 0)
 	{
 		printf("disconnect.\n");
