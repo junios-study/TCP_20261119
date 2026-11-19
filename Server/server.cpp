@@ -23,7 +23,7 @@ int main()
 	//내가 쓸 주소 설정, ip, 설정
 	sockaddr_in ListenSockAddr;
 	memset(&ListenSockAddr, 0, sizeof(ListenSockAddr));
-	ListenSockAddr.sin_addr.s_addr = INADDR_ANY; 
+	ListenSockAddr.sin_addr.s_addr = INADDR_ANY;
 	ListenSockAddr.sin_port = htons(20303);
 	ListenSockAddr.sin_family = PF_INET; //IPv4
 
@@ -41,51 +41,55 @@ int main()
 		exit(-1);
 	}
 
-	sockaddr_in ClientSockAddr;
-	memset(&ClientSockAddr, 0, sizeof(ClientSockAddr));
-	int ClientSockAddrLength = sizeof(ClientSockAddr);
-
-	//blocking
-	SOCKET ClientSocket = accept(ListenSocket, (sockaddr*)&ClientSockAddr, &ClientSockAddrLength);
-	if (ClientSocket == INVALID_SOCKET)
+	while (1)
 	{
-		printf("accept failed. SocketError %d\n", WSAGetLastError());
-		exit(-1);
-	}
+		sockaddr_in ClientSockAddr;
+		memset(&ClientSockAddr, 0, sizeof(ClientSockAddr));
+		int ClientSockAddrLength = sizeof(ClientSockAddr);
 
-	char Buffer[1024] = { 0, };
-	
-	//blocking
-	int RecvBytes = recv(ClientSocket, Buffer, 1024, 0);
-	if (RecvBytes == 0)
-	{
-		printf("disconnect.\n");
-		exit(-1);
-	}
-	else if (RecvBytes < 0)
-	{
-		printf("error disconnect. %d\n", WSAGetLastError());
-		exit(-1);
-	}
+		//blocking
+		SOCKET ClientSocket = accept(ListenSocket, (sockaddr*)&ClientSockAddr, &ClientSockAddrLength);
+		if (ClientSocket == INVALID_SOCKET)
+		{
+			printf("accept failed. SocketError %d\n", WSAGetLastError());
+			exit(-1);
+		}
 
-	printf("Recv Data %s", Buffer);
+		char Buffer[1024] = { 0, };
 
+		//blocking
+		int RecvBytes = recv(ClientSocket, Buffer, 1024, 0);
+		if (RecvBytes == 0)
+		{
+			printf("disconnect.\n");
+			exit(-1);
+		}
+		else if (RecvBytes < 0)
+		{
+			printf("error disconnect. %d\n", WSAGetLastError());
+			exit(-1);
+		}
 
-	int SendBytes = send(ClientSocket, Buffer, RecvBytes, 0);
-	if (SendBytes == 0)
-	{
-		printf("disconnect.\n");
-		exit(-1);
+		printf("Recv Data %s", Buffer);
+
+		char Buffer2[1024] = "진영이가 한우 쏜다.";
+
+		int SendBytes = send(ClientSocket, Buffer2, (int)(strlen(Buffer2) + 1), 0);
+		if (SendBytes == 0)
+		{
+			printf("disconnect.\n");
+			exit(-1);
+		}
+		else if (SendBytes < 0)
+		{
+			printf("error disconnect. %d\n", WSAGetLastError());
+			exit(-1);
+		}
+
+		closesocket(ClientSocket);
 	}
-	else if (SendBytes < 0)
-	{
-		printf("error disconnect. %d\n", WSAGetLastError());
-		exit(-1);
-	}
-
 
 	closesocket(ListenSocket);
-	closesocket(ClientSocket);
 
 	WSACleanup();
 
